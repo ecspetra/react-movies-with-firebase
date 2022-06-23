@@ -16,7 +16,18 @@ function App() {
         });
   }
 
-  useEffect(() => {getMovies()}, []);
+    const getMyMovies = () => {
+        database.ref("movies").once('value', (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                const childKey = childSnapshot.key;
+                const childData = childSnapshot.val();
+                setMyMovies([...myMovies, childData]);
+                console.log(childData);
+            });
+        });
+    }
+
+  useEffect(() => {getMovies(); getMyMovies();}, []);
 
   const postMoviesToDataBase = (selectedMovie) => {
       database.ref("movies").set({
@@ -25,9 +36,15 @@ function App() {
               title: selectedMovie.title,
               description: selectedMovie.overview,
               date: selectedMovie.release_date,
+              id: selectedMovie.id,
           },
       }).catch(alert);
   }
+
+  // const removeMovieToMyCollection = (id) => {
+  //     database.ref("movies").child(id).remove();
+  //     console.log(id);
+  // }
 
   const addMovieToMyCollection = (selectedMovie) => {
       console.log(myMovies);
@@ -38,13 +55,17 @@ function App() {
       } else {
           alert('You already have this movie');
       }
-
   }
 
   return (
     <div className="App">
+        <button onClick={() => {getMyMovies()}}>Get my movies</button>
         {myMovies && myMovies.map((movie, key) => {
-            return <div key={key}>{movie.title}</div>
+            return (
+                <div key={key}>{movie.title}
+                    {/*<button onClick={() => {removeMovieToMyCollection(movie.id)}}>Remove from my movies</button>*/}
+                </div>
+            )
         })
         }
         -------------------------------------------------------------------
