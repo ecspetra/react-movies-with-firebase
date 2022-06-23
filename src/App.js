@@ -1,5 +1,6 @@
 import MovieCard from './components/MovieCard/MovieCard';
 import {useState, useEffect} from "react";
+import database from './firebase';
 
 function App() {
 
@@ -17,11 +18,23 @@ function App() {
 
   useEffect(() => {getMovies()}, []);
 
+  const postMoviesToDataBase = (selectedMovie) => {
+      database.ref("movies").set({
+          ...myMovies,
+          movie: {
+              title: selectedMovie.title,
+              description: selectedMovie.overview,
+              date: selectedMovie.release_date,
+          },
+      }).catch(alert);
+  }
+
   const addMovieToMyCollection = (selectedMovie) => {
       console.log(myMovies);
       console.log(selectedMovie);
       if (!myMovies.includes(selectedMovie)) {
           setMyMovies([...myMovies, selectedMovie]);
+          postMoviesToDataBase(selectedMovie);
       } else {
           alert('You already have this movie');
       }
