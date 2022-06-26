@@ -1,6 +1,7 @@
 import MovieCard from './components/MovieCard/MovieCard';
 import {useState, useEffect} from "react";
 import database from './firebase';
+import FavoriteMovieCard from "./components/FavoriteMovieCard/FavoriteMovieCard";
 
 function App() {
 
@@ -16,42 +17,47 @@ function App() {
         });
   }
 
+    const postMoviesToDataBase = (selectedMovie) => {
+        database.ref("movies").push({
+            movie: {
+                image: 'https://image.tmdb.org/t/p/w440_and_h660_face' + selectedMovie.poster_path,
+                title: selectedMovie.title,
+                id: selectedMovie.id,
+                rating: selectedMovie.vote_average,
+            },
+        }).catch(alert);
+    }
+
+    const removeMovieFromMyCollection = (key) => {
+        database.ref("movies").child(key).remove();
+        console.log(key);
+        getMyMovies();
+    }
+
     const getMyMovies = () => {
         database.ref("movies").once('value', (snapshot) => {
+            setMyMovies([]);
             snapshot.forEach((childSnapshot) => {
-                const childKey = childSnapshot.key;
-                const childData = childSnapshot.val();
-                setMyMovies([...myMovies, childData]);
-                console.log(childData);
+
+                const newMovie = {
+                    key: childSnapshot.key,
+                    data: childSnapshot.val(),
+                }
+
+                setMyMovies(prevState => ([...prevState, newMovie]));
+                console.log(newMovie);
             });
+            console.log(myMovies);
         });
     }
 
   useEffect(() => {getMovies(); getMyMovies();}, []);
 
-  const postMoviesToDataBase = (selectedMovie) => {
-      database.ref("movies").set({
-          ...myMovies,
-          movie: {
-              title: selectedMovie.title,
-              description: selectedMovie.overview,
-              date: selectedMovie.release_date,
-              id: selectedMovie.id,
-          },
-      }).catch(alert);
-  }
-
-  // const removeMovieToMyCollection = (id) => {
-  //     database.ref("movies").child(id).remove();
-  //     console.log(id);
-  // }
-
   const addMovieToMyCollection = (selectedMovie) => {
-      console.log(myMovies);
-      console.log(selectedMovie);
       if (!myMovies.includes(selectedMovie)) {
-          setMyMovies([...myMovies, selectedMovie]);
+          //setMyMovies([...myMovies, selectedMovie]);
           postMoviesToDataBase(selectedMovie);
+          getMyMovies();
       } else {
           alert('You already have this movie');
       }
@@ -60,17 +66,13 @@ function App() {
   return (
     <div className="App">
         <button onClick={() => {getMyMovies()}}>Get my movies</button>
-        {myMovies && myMovies.map((movie, key) => {
-            return (
-                <div key={key}>{movie.title}
-                    {/*<button onClick={() => {removeMovieToMyCollection(movie.id)}}>Remove from my movies</button>*/}
-                </div>
-            )
+        {myMovies && myMovies.map((movie, index) => {
+            return <FavoriteMovieCard movie={movie} key={index} removeMovieFromMyCollection={removeMovieFromMyCollection} />
         })
         }
         -------------------------------------------------------------------
-      {movies.map((movie, key) => {
-          return <MovieCard movie={movie} key={key} addMovieToMyCollection={addMovieToMyCollection} />
+      {movies.map((movie, index) => {
+          return <MovieCard movie={movie} key={index} keyID={index} addMovieToMyCollection={addMovieToMyCollection} />
         })
       }
     </div>
