@@ -1,7 +1,8 @@
 import MovieCard from './components/MovieCard/MovieCard';
 import {useState, useEffect} from "react";
 import database from './firebase';
-import FavoriteMovieCard from "./components/FavoriteMovieCard/FavoriteMovieCard";
+import FavoriteMoviesList from "./components/FavoriteMoviesList/FavoriteMoviesList";
+import MoviesList from "./components/MoviesList/MoviesList";
 
 function App() {
 
@@ -45,36 +46,38 @@ function App() {
                 }
 
                 setMyMovies(prevState => ([...prevState, newMovie]));
-                console.log(newMovie);
             });
             console.log(myMovies);
         });
     }
 
-  useEffect(() => {getMovies(); getMyMovies();}, []);
+  useEffect(() => {
+      getMovies();
+      console.log(myMovies);
+      getMyMovies();
+  }, []);
 
   const addMovieToMyCollection = (selectedMovie) => {
-      if (!myMovies.includes(selectedMovie)) {
-          //setMyMovies([...myMovies, selectedMovie]);
+      if (!myMovies.length) {
           postMoviesToDataBase(selectedMovie);
           getMyMovies();
+          console.log(myMovies);
       } else {
-          alert('You already have this movie');
+          if (myMovies.find(movie => selectedMovie.id === movie.data.movie.id)) {
+              alert('You already have this movie');
+          } else {
+              postMoviesToDataBase(selectedMovie);
+              getMyMovies();
+          }
       }
   }
 
   return (
     <div className="App">
         <button onClick={() => {getMyMovies()}}>Get my movies</button>
-        {myMovies && myMovies.map((movie, index) => {
-            return <FavoriteMovieCard movie={movie} key={index} removeMovieFromMyCollection={removeMovieFromMyCollection} />
-        })
-        }
+        <FavoriteMoviesList myMovies={myMovies} removeMovieFromMyCollection={removeMovieFromMyCollection} />
         -------------------------------------------------------------------
-      {movies.map((movie, index) => {
-          return <MovieCard movie={movie} key={index} keyID={index} addMovieToMyCollection={addMovieToMyCollection} />
-        })
-      }
+        <MoviesList movies={movies} addMovieToMyCollection={addMovieToMyCollection} />
     </div>
   );
 }
