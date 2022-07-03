@@ -1,20 +1,21 @@
-import MovieCard from './components/MovieCard/MovieCard';
 import {useState, useEffect} from "react";
 import database from './firebase';
-import FavoriteMoviesList from "./components/FavoriteMoviesList/FavoriteMoviesList";
-import MoviesList from "./components/MoviesList/MoviesList";
+import { Routes, Route } from "react-router-dom";
+import AppContainer from "./components/AppContainer/AppContainer";
+import MoviePage from "./components/MoviePage/MoviePage";
 
 function App() {
 
   const [movies, setMovies] = useState([]);
   const [myMovies, setMyMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedMoviePage, setSelectedMoviePage] = useState([]);
 
   const getMovies = () => {
     fetch('https://api.themoviedb.org/3/discover/movie?api_key=1fdbb7205b3bf878ede960ab5c9bc7ce')
         .then(response => response.json())
         .then(data => {
           setMovies(data.results);
-          console.log(movies);
         });
   }
 
@@ -38,6 +39,7 @@ function App() {
     const getMyMovies = () => {
         database.ref("movies").once('value', (snapshot) => {
             setMyMovies([]);
+            setIsLoading(true);
             snapshot.forEach((childSnapshot) => {
 
                 const newMovie = {
@@ -47,7 +49,7 @@ function App() {
 
                 setMyMovies(prevState => ([...prevState, newMovie]));
             });
-            console.log(myMovies);
+            setIsLoading(false);
         });
     }
 
@@ -72,13 +74,16 @@ function App() {
       }
   }
 
+  const onSelectMovie = (selectedMovie) => {
+      const selected_movie = movies.find(movie => selectedMovie.data.movie.id === movie.id);
+      setSelectedMoviePage(selected_movie);
+  }
+
   return (
-    <div className="App">
-        <button onClick={() => {getMyMovies()}}>Get my movies</button>
-        <FavoriteMoviesList myMovies={myMovies} removeMovieFromMyCollection={removeMovieFromMyCollection} />
-        -------------------------------------------------------------------
-        <MoviesList movies={movies} addMovieToMyCollection={addMovieToMyCollection} />
-    </div>
+      <Routes>
+          <Route path="/" element={<AppContainer movies={movies} myMovies={myMovies} selectedMoviePage={selectedMoviePage} removeMovieFromMyCollection={removeMovieFromMyCollection} addMovieToMyCollection={addMovieToMyCollection} isLoading={isLoading} onSelectMovie={onSelectMovie} />} />
+          <Route path="movie" element={<MoviePage movies={movies} myMovies={myMovies} selectedMoviePage={selectedMoviePage} />} />
+      </Routes>
   );
 }
 

@@ -3,7 +3,7 @@ import MovieCard from "../MovieCard/MovieCard";
 
 const MoviesList = (props) => {
     return (
-        <div>
+        <div className="movie-list">
             {props.movies.map((movie, index) => {
                 return <MovieCard movie={movie} key={index} addMovieToMyCollection={props.addMovieToMyCollection} />
             })

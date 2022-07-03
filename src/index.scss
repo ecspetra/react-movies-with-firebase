@@ -1,0 +1,44 @@
+.app-container {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.favorite-movies-list {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.favorite-movie-card {
+    max-width: 200px;
+    padding: 0 10px 40px;
+
+    &__content {
+
+    }
+    &__image {
+        width: 100%;
+    }
+}
+
+.movie-list {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.movie-card {
+    max-width: 200px;
+    padding: 0 10px 40px;
+
+    &__content {
+
+    }
+    &__image {
+        width: 100%;
+    }
+}
