@@ -7,7 +7,7 @@ const AppContainer = (props) => {
         <div className="app-container">
             {props.isLoading && <div>Loading ...</div>}
             <h1>Favorite movies</h1>
-            <FavoriteMoviesList myMovies={props.myMovies} selectedMoviePage={props.selectedMoviePage} removeMovieFromMyCollection={props.removeMovieFromMyCollection} onSelectMovie={props.onSelectMovie} />
+            <FavoriteMoviesList myMovies={props.myMovies} selectedMoviePage={props.selectedMoviePage} removeMovieFromMyCollection={props.removeMovieFromMyCollection} onSelectMoviePage={props.onSelectMoviePage} />
             <h1>Movies</h1>
             <MoviesList movies={props.movies} addMovieToMyCollection={props.addMovieToMyCollection} />
         </div>

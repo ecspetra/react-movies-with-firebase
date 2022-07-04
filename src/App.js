@@ -9,7 +9,7 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [myMovies, setMyMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMoviePage, setSelectedMoviePage] = useState([]);
+  const [selectedMoviePage, setSelectedMoviePage] = useState({});
 
   const getMovies = () => {
     fetch('https://api.themoviedb.org/3/discover/movie?api_key=1fdbb7205b3bf878ede960ab5c9bc7ce')
@@ -53,12 +53,6 @@ function App() {
         });
     }
 
-  useEffect(() => {
-      getMovies();
-      console.log(myMovies);
-      getMyMovies();
-  }, []);
-
   const addMovieToMyCollection = (selectedMovie) => {
       if (!myMovies.length) {
           postMoviesToDataBase(selectedMovie);
@@ -74,14 +68,44 @@ function App() {
       }
   }
 
-  const onSelectMovie = (selectedMovie) => {
-      const selected_movie = movies.find(movie => selectedMovie.data.movie.id === movie.id);
-      setSelectedMoviePage(selected_movie);
-  }
+  // const onSelectMoviePage = (selectedMovie) => {
+  //     // const selected_movie = movies.find(movie => selectedMovie.data.movie.id === movie.id);
+  //     setSelectedMoviePage(selected_movie);
+  //     localStorage.setItem('selectedMoviePage', JSON.stringify(setSelectedMoviePage));
+  // }
+
+    // const getSelectedMoviePage = () => {
+    //     const moviePageFromLocalStorage = JSON.parse(localStorage.getItem('selectedMoviePage'));
+    //     setSelectedMoviePage(moviePageFromLocalStorage);
+    // }
+
+    const onSelectMoviePage = (selectedMovie) => {
+        database.ref("selectMoviePage").push({
+            selectedMovie
+        }).catch(alert);
+    }
+
+    const getSelectedMoviePage = () => {
+        database.ref("selectMoviePage").once('value', (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                const moviePageFromStorage = childSnapshot.val();
+                setSelectedMoviePage(moviePageFromStorage);
+            });
+        });
+    }
+
+    useEffect(() => {
+        getMovies();
+        getMyMovies();
+    }, []);
+
+    useEffect(() => {
+        getSelectedMoviePage();
+    }, [selectedMoviePage]);
 
   return (
       <Routes>
-          <Route path="/" element={<AppContainer movies={movies} myMovies={myMovies} selectedMoviePage={selectedMoviePage} removeMovieFromMyCollection={removeMovieFromMyCollection} addMovieToMyCollection={addMovieToMyCollection} isLoading={isLoading} onSelectMovie={onSelectMovie} />} />
+          <Route path="/" element={<AppContainer movies={movies} myMovies={myMovies} selectedMoviePage={selectedMoviePage} removeMovieFromMyCollection={removeMovieFromMyCollection} addMovieToMyCollection={addMovieToMyCollection} isLoading={isLoading} onSelectMoviePage={onSelectMoviePage} />} />
           <Route path="movie" element={<MoviePage movies={movies} myMovies={myMovies} selectedMoviePage={selectedMoviePage} />} />
       </Routes>
   );

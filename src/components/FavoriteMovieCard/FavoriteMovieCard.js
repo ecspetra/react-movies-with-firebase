@@ -6,7 +6,7 @@ const FavoriteMovieCard = (props) => {
         <div className="favorite-movie-card">
             <div>
                 <Link to="/movie" className="favorite-movie-card__content" onClick={() => {
-                    props.onSelectMovie(props.movie)}}>
+                    props.onSelectMoviePage(props.movie)}}>
                     <img className="favorite-movie-card__image" src={'https://image.tmdb.org/t/p/w440_and_h660_face' + props.movie.data.movie.image} />
                     <h3 className="favorite-movie-card__title">{props.movie.data.movie.title}</h3>
                     <p className="favorite-movie-card__rating">{props.movie.data.movie.rating}</p>
